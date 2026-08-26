@@ -114,7 +114,7 @@ static bool isValid(const char* str, size_t& decoded) {
  *
  * @return array  Codepoint array.
  */
-static std::vector<uint32_t> decode(const char* str) {
+static std::vector<uint32_t> toCodepointArray(const char* str) {
   std::vector<uint32_t> codepointArray;
   if(str == nullptr) return codepointArray;
   uint32_t codepoint = 0;
@@ -140,7 +140,7 @@ static std::vector<uint32_t> decode(const char* str) {
  *
  * @return array        Codepoint array.
  */
-static std::vector<uint32_t> decode(const char* str, uint32_t replacement) {
+static std::vector<uint32_t> toCodepointArray(const char* str, uint32_t replacement) {
   std::vector<uint32_t> codepointArray;
   if(str == nullptr) return codepointArray;
   uint32_t codepoint = 0;
@@ -157,6 +157,32 @@ static std::vector<uint32_t> decode(const char* str, uint32_t replacement) {
     }
   }
   return codepointArray;
+}
+
+/**
+ * Decode utf8 string to a codepoint.
+ *
+ * Only decode the first codepoint in the string.
+ *
+ * @param str           Input utf8 str.
+ * @param replacement   Replacement if error happened.
+ *
+ * @return uint32_t  Codepoint.
+ */
+static uint32_t toCodepoint(const char* str, uint32_t replacement = 0xFFFD) {
+  if(str == nullptr) return replacement;
+  uint32_t codepoint = 0;
+  uint32_t state = bjoern::UTF8_ACCEPT;
+  auto s = reinterpret_cast<const uint8_t*>(str);
+  for (; *s; ++s) {
+    bjoern::decode(&state, &codepoint, *s);
+    if(state == bjoern::UTF8_ACCEPT) {
+      return codepoint;
+    } else if(state == bjoern::UTF8_REJECT) {
+      return replacement;
+    }
+  }
+  return replacement;
 }
 
 } // end namespace utf8;
