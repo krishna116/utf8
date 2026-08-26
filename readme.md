@@ -2,7 +2,7 @@
 
 Features:
 - Single include file "utf8.h"
-- Only provide 4 public APIs.
+- Only provide 5 public APIs.
 - Very efficient(using bjoern utf-8 dfa).
 
 ## Usage
@@ -14,7 +14,7 @@ int main(){
   const char *str = u8"abc中国こんにちは";
   printf("is-valid-utf8-str = %s\n", utf8::isValid(str) ? "true" : "false");
   
-  auto codepoints = utf8::decode(str);
+  auto codepoints = utf8::toCodepointArray(str);
   printf("[codepoints]\n");
   for (auto &codepoint : codepoints) {
     printf("U+%04X\n", codepoint);
@@ -24,7 +24,7 @@ int main(){
 }
 
 ```
-## The 4 Public APIs
+## The 5 Public APIs
 ```C++
 /**
  * Decode utf8 string to codepoints.
@@ -36,7 +36,7 @@ int main(){
  *
  * @return array  Codepoint array.
  */
-std::vector<uint32_t> decode(const char* str);
+std::vector<uint32_t> toCodepointArray(const char* str);
 
 /**
  * Decode utf8 string to codepoints(with error correction and recovery).
@@ -47,7 +47,19 @@ std::vector<uint32_t> decode(const char* str);
  *
  * @return array        Codepoint array.
  */
-std::vector<uint32_t> decode(const char* str, uint32_t replacement);
+std::vector<uint32_t> toCodepointArray(const char* str, uint32_t replacement);
+
+/**
+ * Decode utf8 string to a codepoint.
+ *
+ * Only decode the first codepoint in the string.
+ *
+ * @param str           Input utf8 str.
+ * @param replacement   Replacement if error happened.
+ *
+ * @return uint32_t  Codepoint.
+ */
+static uint32_t toCodepoint(const char* str, uint32_t replacement = 0xFFFD);
 
 /**
  * Check whether the input str is a valid UTF-8 string.
